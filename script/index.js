@@ -1,3 +1,13 @@
+function removeActiveClass(){
+  const activeBtns = document.getElementsByClassName("active");
+  for (let activeBtn of activeBtns){
+    activeBtn.classList.remove("active");
+    //  console.log(activeBtn);
+  }
+  }
+  
+
+
 function loadCategories() {
   fetch('https://openapi.programming-hero.com/api/phero-tube/categories')
     .then((res) => res.json())
@@ -8,7 +18,11 @@ function loadCategories() {
 const loadVideos = () => {
   fetch('https://openapi.programming-hero.com/api/phero-tube/videos')
     .then(res => res.json())
-    .then(data => displayVideoCard(data.videos))
+    .then(data => {
+      removeActiveClass();
+      document.getElementById("btn-all").classList.add("active");
+      displayVideoCard(data.videos)
+    })
 }
 
 function displayCategory(categories) {
@@ -17,7 +31,7 @@ function displayCategory(categories) {
   categories.forEach(element => {
     const categoryDiv = document.createElement("div")
     categoryDiv.innerHTML = `
-            <button onClick = loadCategoryVideo(${element.category_id}) class="btn btn-sm hover:bg-[#FF1F3D] hover:text-white">${element.category}</button>
+            <button id="btn-${element.category_id}" onClick = loadCategoryVideo(${element.category_id}) class="btn btn-sm hover:bg-[#FF1F3D] hover:text-white">${element.category}</button>
        `
     categoryContainer.append(categoryDiv);
   });
@@ -27,9 +41,14 @@ function displayCategory(categories) {
 const loadCategoryVideo = (id) => {
   const url = `https://openapi.programming-hero.com/api/phero-tube/category/${id}`;
   fetch(url)
-  .then(res => res.json())
-  .then(data => displayVideoCard(data.category))
-  console.log(url);
+  .then((res) => res.json())
+  .then((data) => {
+    removeActiveClass();
+    const clickedBtn = document.getElementById(`btn-${id}`)
+    clickedBtn.classList.add("active")
+    displayVideoCard(data.category)
+  })
+  // console.log(url);
 }
 
 
@@ -55,6 +74,15 @@ const loadCategoryVideo = (id) => {
 function displayVideoCard(videos) {
   const videoCardContainerId = document.getElementById("video-card-container");
   videoCardContainerId.innerHTML = '';
+  if(videos.length ==0){
+    videoCardContainerId.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center mt-10">
+            <img src="./assets/Icon.png" alt="">
+            <h2 class="text-2xl font-bold">Oops!! Sorry, There is no content here</h2>
+        </div>
+    `;
+  }
+  
   // console.log(videoCardContainerId)
   videos.forEach(element => {
     const videoCardDiv = document.createElement('div');
@@ -99,4 +127,4 @@ function displayVideoCard(videos) {
 }
 
 loadCategories();
-loadVideos();
+// loadVideos();
